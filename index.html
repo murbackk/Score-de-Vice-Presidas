@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pontuação de Vice-Presidentes</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/sql-wasm.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                z-index: 50;
+                height: 100vh;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 bg-blue-800 text-white p-4">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-2xl font-bold">Pontuação de Vices</h1>
+                <button id="closeSidebar" class="md:hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <nav>
+                <ul class="space-y-2">
+                    <li>
+                        <button id="dashboardBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                            Dashboard
+                        </button>
+                    </li>
+                    <li>
+                        <button id="vpsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            VPs
+                        </button>
+                    </li>
+                    <li>
+                        <button id="metasBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Metas
+                        </button>
+                    </li>
+                    <li>
+                        <button id="relatoriosBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Relatórios
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-blue-900">
+                <p class="text-xs">Banco de dados interno SQLite</p>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="flex-1 p-8">
+            <!-- Botão mobile -->
+            <button id="openSidebar" class="md:hidden mb-4 bg-blue-600 text-white p-2 rounded">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <!-- Dashboard -->
+            <div id="dashboardView" class="space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Dashboard de Desempenho</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Vice-Presidentes</p>
+                                <h3 id="totalVPs" class="text-3xl font-bold">0</h3>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Metas Registradas</p>
+                                <h3 id="totalMetas" class="text-3xl font-bold">0</h3>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Média VP</p>
+                                <h3 id="mediaPontuacao" class="text-3xl font-bold">0</h3>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Melhor VP</p>
+                                <h3 id="melhorVP" class="text-2xl font-bold">N/A</h3>
+                                <p id="pontuacaoMelhorVP" class="text-sm text-gray-500">0 pontos</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Distribuição de Pontuações</h3>
+                    <div class="chart-container">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Top 5 VPs</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="topVPsTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posição</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metas Alcançadas</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Dados serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerenciamento de VPs -->
+            <div id="vpsView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Gerenciar Vice-Presidentes</h2>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Adicionar Novo VP</h3>
+                    <form id="vpForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="vpNome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                            <input type="text" id="vpNome" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="vpPosicao" class="block text-sm font-medium text-gray-700">Posição</label>
+                            <input type="text" id="vpPosicao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Adicionar VP
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Lista de Vice-Presidentes</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="vpsTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posição</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Dados serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerenciamento de Metas -->
+            <div id="metasView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Gerenciar Metas</h2>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Adicionar Nova Meta</h3>
+                    <form id="metaForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="metaNome" class="block text-sm font-medium text-gray-700">Descrição da Meta</label>
+                            <input type="text" id="metaNome" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="metaPeso" class="block text-sm font-medium text-gray-700">Peso/Pontuação Máxima</label>
+                            <input type="number" id="metaPeso" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Adicionar Meta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Lista de Metas</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="metasTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meta</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação Máxima</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Dados serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios -->
+            <div id="relatoriosView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Relatórios de Desempenho</h2>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Selecione um VP para detalhar</h3>
+                        <select id="vpSelectRelatorio" class="mt-1 block w-64 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                            <option value="">Selecione um VP</option>
+                            <!-- Opções serão preenchidas via JS -->
+                        </select>
+                    </div>
+
+                    <div id="relatorioContainer" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-white rounded-lg shadow p-4 border-t-4 border-blue-500">
+                                <h4 class="font-medium text-gray-500">Nome</h4>
+                                <p id="relatorioNome" class="text-xl font-semibold">-</p>
+                            </div>
+                            <div class="bg-white rounded-lg shadow p-4 border-t-4 border-green-500">
+                                <h4 class="font-medium text-gray-500">Posição</h4>
+                                <p id="relatorioPosicao" class="text-xl font-semibold">-</p>
+                            </div>
+                            <div class="bg-white rounded-lg shadow p-4 border-t-4 border-purple-500">
+                                <h4 class="font-medium text-gray-500">Pontuação Total</h4>
+                                <p id="relatorioPontuacao" class="text-xl font-semibold">0</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6 mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Desempenho por Meta</h3>
+                            <div class="chart-container">
+                                <canvas id="vpChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-xl font-semibold mb-4">Detalhes das Metas</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200" id="relatorioMetasTable">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meta</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação Máxima</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação Obtida</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Concluído</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <!-- Dados serão preenchidos via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar pontuação -->
+    <div id="pontuacaoModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold" id="modalTitle">Adicionar Pontuação</h3>
+                    <button id="closePontuacaoModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form id="pontuacaoForm">
+                    <input type="hidden" id="vpIdPontuacao">
+                    <div class="mb-4">
+                        <label for="metaSelect" class="block text-sm font-medium text-gray-700">Meta</label>
+                        <select id="metaSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                            <option value="">Selecione uma meta</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="pontuacaoValor" class="block text-sm font-medium text-gray-700">Pontuação</label>
+                        <input type="number" id="pontuacaoValor" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        <p class="mt-1 text-sm text-gray-500">Pontuação máxima: <span id="pontuacaoMaxima">0</span></p>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelPontuacao" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                            Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação -->
+    <div id="confirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold" id="confirmModalTitle">Confirmar ação</h3>
+                    <button id="closeConfirmModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <p id="confirmModalMessage">Tem certeza que deseja continuar?</p>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" id="confirmCancel" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="button" id="confirmAction" class="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let db;
+        let SQL;
+        let scoreChart;
+        let vpChart;
+        
+
+        // Função para salvar o banco de dados no localStorage
+        function saveDB() {
+            if (db) {
+                const data = db.export();
+                const b64 = btoa(String.fromCharCode.apply(null, data));
+                localStorage.setItem('vpdb', b64);
+            }
+        }
+
+        // Função para carregar o banco de dados do localStorage
+        function loadDBFromStorage(SQL) {
+            const b64 = localStorage.getItem('vpdb');
+            if (b64) {
+                const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+                return new SQL.Database(binary);
+            }
+            return null;
+        }
+
+        // Inicialização do banco de dados
+        async function initDB() {
+            try {
+                // Configurar o SQL.js para carregar o SQLite WASM
+                SQL = await initSqlJs({
+                    locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.8.0/dist/${file}`
+                });
+
+                // Tentar carregar do localStorage
+                db = loadDBFromStorage(SQL);
+                if (!db) {
+                    // Criar novo banco de dados
+                    db = new SQL.Database();
+
+                    // Criar tabelas se não existirem
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS vps (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nome TEXT NOT NULL,
+                            posicao TEXT NOT NULL,
+                            data_criacao TEXT DEFAULT (datetime('now','localtime'))
+                        );
+                    `);
+
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS metas (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            descricao TEXT NOT NULL,
+                            peso INTEGER NOT NULL,
+                            data_criacao TEXT DEFAULT (datetime('now','localtime'))
+                        );
+                    `);
+
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS pontuacoes (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            vp_id INTEGER NOT NULL,
+                            meta_id INTEGER NOT NULL,
+                            pontuacao INTEGER NOT NULL,
+                            data_registro TEXT DEFAULT (datetime('now','localtime')),
+                            FOREIGN KEY(vp_id) REFERENCES vps(id),
+                            FOREIGN KEY(meta_id) REFERENCES metas(id)
+                        );
+                    `);
+
+                    // Adicionar alguns dados iniciais se as tabelas estiverem vazias
+                    const vpsCount = db.exec("SELECT COUNT(*) as count FROM vps");
+                    if (vpsCount[0]?.values[0][0] === 0) {
+                        db.run("INSERT INTO vps (nome, posicao) VALUES (?, ?)", ["João Silva", "VP de Operações"]);
+                        db.run("INSERT INTO vps (nome, posicao) VALUES (?, ?)", ["Maria Souza", "VP de Tecnologia"]);
+                        db.run("INSERT INTO vps (nome, posicao) VALUES (?, ?)", ["Carlos Oliveira", "VP de Marketing"]);
+                    }
+
+                    const metasCount = db.exec("SELECT COUNT(*) as count FROM metas");
+                    if (metasCount[0]?.values[0][0] === 0) {
+                        db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", ["Aumentar receita em 20%", 100]);
+                        db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", ["Reduzir custos em 15%", 80]);
+                        db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", ["Lançar 2 novos produtos", 120]);
+                    }
+                    // Salvar banco inicial
+                    saveDB();
+                }
+
+                // Carregar dados iniciais
+                loadDashboardData();
+                loadVPsData();
+                loadMetasData();
+                loadVPsForSelect();
+
+                console.log("Banco de dados inicializado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao inicializar o banco de dados:", error);
+            }
+        }
+        
+        // Funções para carregar dados
+        function loadDashboardData() {
+            // Total de VPs
+            const totalVPs = db.exec("SELECT COUNT(*) FROM vps");
+            document.getElementById('totalVPs').textContent = totalVPs[0]?.values[0][0] || 0;
+            
+            // Total de Metas
+            const totalMetas = db.exec("SELECT COUNT(*) FROM metas");
+            document.getElementById('totalMetas').textContent = totalMetas[0]?.values[0][0] || 0;
+            
+            // Média de pontuação dos VPs
+            const mediaPontuacao = db.exec(`
+                SELECT AVG(total) as media 
+                FROM (
+                    SELECT v.id, SUM(p.pontuacao) as total 
+                    FROM vps v 
+                    LEFT JOIN pontuacoes p ON v.id = p.vp_id 
+                    GROUP BY v.id
+                )
+            `);
+            const media = mediaPontuacao[0]?.values[0]?.[0] || 0;
+            document.getElementById('mediaPontuacao').textContent = media.toFixed(1);
+            
+            // Melhor VP
+            const melhorVP = db.exec(`
+                SELECT v.nome, SUM(p.pontuacao) as total 
+                FROM vps v 
+                LEFT JOIN pontuacoes p ON v.id = p.vp_id 
+                GROUP BY v.id 
+                ORDER BY total DESC 
+                LIMIT 1
+            `);
+            
+            if (melhorVP[0]?.values[0]) {
+                document.getElementById('melhorVP').textContent = melhorVP[0].values[0][0];
+                document.getElementById('pontuacaoMelhorVP').textContent = `${melhorVP[0].values[0][1] || 0} pontos`;
+            }
+            
+            // Top 5 VPs
+            const topVPs = db.exec(`
+                SELECT v.nome, v.posicao, SUM(p.pontuacao) as total, 
+                       (SELECT COUNT(*) FROM pontuacoes WHERE vp_id = v.id) as metas_atingidas
+                FROM vps v 
+                LEFT JOIN pontuacoes p ON v.id = p.vp_id 
+                GROUP BY v.id 
+                ORDER BY total DESC 
+                LIMIT 5
+            `);
+            
+            const topVPsTable = document.querySelector('#topVPsTable tbody');
+            topVPsTable.innerHTML = '';
+            
+            if (topVPs[0]?.values) {
+                let posicao = 1;
+                topVPs[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[0]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${posicao++}º</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[3] || 0}</td>
+                    `;
+                    topVPsTable.appendChild(tr);
+                });
+            }
+            
+            // Gráfico de distribuição de pontuações
+            renderScoreChart();
+        }
+        
+        function loadVPsData() {
+            const vps = db.exec(`
+                SELECT v.*, 
+                       (SELECT SUM(pontuacao) FROM pontuacoes WHERE vp_id = v.id) as total_pontos,
+                       (SELECT COUNT(*) FROM pontuacoes WHERE vp_id = v.id) as num_metas
+                FROM vps v
+                ORDER BY v.nome
+            `);
+            
+            const vpsTable = document.querySelector('#vpsTable tbody');
+            vpsTable.innerHTML = '';
+            
+            if (vps[0]?.values) {
+                vps[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[4] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="openPontuacaoModal(${row[0]})">
+                                Pontuar
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="confirmDelete('vp', ${row[0]}, '${row[1]}')">
+                                Remover
+                            </button>
+                        </td>
+                    `;
+                    vpsTable.appendChild(tr);
+                });
+            }
+        }
+        
+        function loadMetasData() {
+            const metas = db.exec("SELECT * FROM metas ORDER BY descricao");
+            
+            const metasTable = document.querySelector('#metasTable tbody');
+            metasTable.innerHTML = '';
+            
+            if (metas[0]?.values) {
+                metas[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="text-red-600 hover:text-red-800" onclick="confirmDelete('meta', ${row[0]}, '${row[1]}')">
+                                Remover
+                            </button>
+                        </td>
+                    `;
+                    metasTable.appendChild(tr);
+                });
+            }
+        }
+        
+        function loadVPsForSelect() {
+            const vps = db.exec("SELECT id, nome FROM vps ORDER BY nome");
+            const select = document.getElementById('vpSelectRelatorio');
+            select.innerHTML = '<option value="">Selecione um VP</option>';
+            
+            if (vps[0]?.values) {
+                vps[0].values.forEach(row => {
+                    const option = document.createElement('option');
+                    option.value = row[0];
+                    option.textContent = row[1];
+                    select.appendChild(option);
+                });
+            }
+        }
+        
+        function loadMetasForPontuacao(vpId) {
+            // Buscar todas as metas
+            const metas = db.exec("SELECT id, descricao, peso FROM metas ORDER BY descricao");
+            const select = document.getElementById('metaSelect');
+            select.innerHTML = '<option value="">Selecione uma meta</option>';
+            
+            if (metas[0]?.values) {
+                metas[0].values.forEach(row => {
+                    const option = document.createElement('option');
+                    option.value = row[0];
+                    option.dataset.max = row[2];
+                    option.textContent = `${row[1]} (${row[2]} pts)`;
+                    select.appendChild(option);
+                });
+            }
+            
+            // Definir o ID do VP no formulário
+            document.getElementById('vpIdPontuacao').value = vpId;
+        }
+        
+        // Funções para manipulação de dados
+
+        function addVP(nome, posicao) {
+            try {
+                db.run("INSERT INTO vps (nome, posicao) VALUES (?, ?)", [nome, posicao]);
+                saveDB();
+                loadDashboardData();
+                loadVPsData();
+                loadVPsForSelect();
+                return true;
+            } catch (error) {
+                console.error("Erro ao adicionar VP:", error);
+                return false;
+            }
+        }
+        
+
+        function addMeta(descricao, peso) {
+            try {
+                db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", [descricao, peso]);
+                saveDB();
+                loadDashboardData();
+                loadMetasData();
+                return true;
+            } catch (error) {
+                console.error("Erro ao adicionar meta:", error);
+                return false;
+            }
+        }
+        
+
+        function addPontuacao(vpId, metaId, pontuacao) {
+            try {
+                // Verificar se já existe pontuação para este VP e Meta
+                const existe = db.exec("SELECT id FROM pontuacoes WHERE vp_id = ? AND meta_id = ?", [vpId, metaId]);
+
+                if (existe[0]?.values?.length > 0) {
+                    // Atualizar pontuação existente
+                    db.run("UPDATE pontuacoes SET pontuacao = ? WHERE id = ?", [pontuacao, existe[0].values[0][0]]);
+                } else {
+                    // Inserir nova pontuação
+                    db.run("INSERT INTO pontuacoes (vp_id, meta_id, pontuacao) VALUES (?, ?, ?)", [vpId, metaId, pontuacao]);
+                }
+
+                saveDB();
+                loadDashboardData();
+                loadVPsData();
+                updateRelatorio();
+                return true;
+            } catch (error) {
+                console.error("Erro ao adicionar pontuação:", error);
+                return false;
+            }
+        }
+        
+
+        function deleteRecord(tipo, id) {
+            try {
+                if (tipo === 'vp') {
+                    // Primeiro deletar pontuações relacionadas
+                    db.run("DELETE FROM pontuacoes WHERE vp_id = ?", [id]);
+                    // Depois deletar o VP
+                    db.run("DELETE FROM vps WHERE id = ?", [id]);
+                } else if (tipo === 'meta') {
+                    // Primeiro deletar pontuações relacionadas
+                    db.run("DELETE FROM pontuacoes WHERE meta_id = ?", [id]);
+                    // Depois deletar a meta
+                    db.run("DELETE FROM metas WHERE id = ?", [id]);
+                }
+
+                saveDB();
+                loadDashboardData();
+                loadVPsData();
+                loadMetasData();
+                loadVPsForSelect();
+                updateRelatorio();
+                return true;
+            } catch (error) {
+                console.error(`Erro ao deletar ${tipo}:`, error);
+
+                return false;
+            }
+        }
+        
+        // Funções para renderização de gráficos
+        function renderScoreChart() {
+            // Obter dados para o gráfico
+            const dados = db.exec(`
+                SELECT SUM(p.pontuacao) as total, COUNT(*) as count 
+                FROM vps v 
+                LEFT JOIN pontuacoes p ON v.id = p.vp_id 
+                GROUP BY v.id
+            `);
+            
+            const pontuacoes = dados[0]?.values.map(row => row[0] || 0) || [];
+            
+            // Agrupar pontuações em intervalos para o histograma
+            const intervalos = {};
+            pontuacoes.forEach(p => {
+                const intervalo = Math.floor(p / 50) * 50;
+                intervalos[intervalo] = (intervalos[intervalo] || 0) + 1;
+            });
+            
+            const labels = Object.keys(intervalos).sort((a, b) => a - b).map(k => `${k}-${Number(k)+49}`);
+            const data = Object.keys(intervalos).sort((a, b) => a - b).map(k => intervalos[k]);
+            
+            // Se já existe um gráfico, destruí-lo
+            if (scoreChart) {
+                scoreChart.destroy();
+            }
+            
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            scoreChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Número de VPs',
+                        data: data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de VPs'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Intervalo de Pontuação'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function renderVPChart(vpId) {
+            // Obter dados para o gráfico
+            const dados = db.exec(`
+                SELECT m.descricao, m.peso, p.pontuacao 
+                FROM metas m 
+                LEFT JOIN pontuacoes p ON m.id = p.meta_id AND p.vp_id = ?
+                ORDER BY m.descricao
+            `, [vpId]);
+            
+            if (!dados[0]?.values) return;
+            
+            const labels = dados[0].values.map(row => row[0]);
+            const pesos = dados[0].values.map(row => row[1]);
+            const pontuacoes = dados[0].values.map(row => row[2] || 0);
+            
+            // Se já existe um gráfico, destruí-lo
+            if (vpChart) {
+                vpChart.destroy();
+            }
+            
+            const ctx = document.getElementById('vpChart').getContext('2d');
+            vpChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pontuação Máxima',
+                            data: pesos,
+                            backgroundColor: 'rgba(156, 163, 175, 0.5)',
+                            borderColor: 'rgba(156, 163, 175, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Pontuação Obtida',
+                            data: pontuacoes,
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Pontuação'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Metas'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Funções para manipulação da UI
+        function openPontuacaoModal(vpId) {
+            loadMetasForPontuacao(vpId);
+            const vpInfo = db.exec("SELECT nome FROM vps WHERE id = ?", [vpId]);
+            if (vpInfo[0]?.values?.[0]) {
+                document.getElementById('modalTitle').textContent = `Pontuar ${vpInfo[0].values[0][0]}`;
+            }
+            document.getElementById('pontuacaoModal').classList.remove('hidden');
+        }
+        
+        function confirmDelete(tipo, id, nome) {
+            document.getElementById('confirmModal').classList.remove('hidden');
+            document.getElementById('confirmModalTitle').textContent = `Confirmar Remoção`;
+            document.getElementById('confirmModalMessage').textContent = 
+                `Tem certeza que deseja remover ${tipo === 'vp' ? 'o VP' : 'a meta'} "${nome}"?`;
+            
+            document.getElementById('confirmAction').onclick = function() {
+                deleteRecord(tipo, id);
+                document.getElementById('confirmModal').classList.add('hidden');
+            };
+        }
+        
+        function updateRelatorio() {
+            const vpId = document.getElementById('vpSelectRelatorio').value;
+            if (!vpId) {
+                document.getElementById('relatorioContainer').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('relatorioContainer').classList.remove('hidden');
+            
+            // Informações básicas do VP
+            const vpInfo = db.exec(`
+                SELECT v.nome, v.posicao, SUM(p.pontuacao) as total 
+                FROM vps v 
+                LEFT JOIN pontuacoes p ON v.id = p.vp_id 
+                WHERE v.id = ?
+                GROUP BY v.id
+            `, [vpId]);
+            
+            if (vpInfo[0]?.values?.[0]) {
+                document.getElementById('relatorioNome').textContent = vpInfo[0].values[0][0];
+                document.getElementById('relatorioPosicao').textContent = vpInfo[0].values[0][1];
+                document.getElementById('relatorioPontuacao').textContent = vpInfo[0].values[0][2] || 0;
+            }
+            
+            // Gráfico de desempenho
+            renderVPChart(vpId);
+            
+            // Tabela de metas
+            const metasVP = db.exec(`
+                SELECT m.id, m.descricao, m.peso, p.pontuacao 
+                FROM metas m 
+                LEFT JOIN pontuacoes p ON m.id = p.meta_id AND p.vp_id = ?
+                ORDER BY m.descricao
+            `, [vpId]);
+            
+            const table = document.querySelector('#relatorioMetasTable tbody');
+            table.innerHTML = '';
+            
+            if (metasVP[0]?.values) {
+                metasVP[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    const percentual = row[2] > 0 ? Math.round((row[3] || 0) / row[2] * 100) : 0;
+                    
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[3] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${percentual}%"></div>
+                                </div>
+                                <span>${percentual}%</span>
+                            </div>
+                        </td>
+                    `;
+                    table.appendChild(tr);
+                });
+            }
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initDB();
+            
+            // Navegação
+            document.getElementById('dashboardBtn').addEventListener('click', function() {
+                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                document.getElementById('dashboardView').classList.remove('hidden');
+            });
+            
+            document.getElementById('vpsBtn').addEventListener('click', function() {
+                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                document.getElementById('vpsView').classList.remove('hidden');
+            });
+            
+            document.getElementById('metasBtn').addEventListener('click', function() {
+                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                document.getElementById('metasView').classList.remove('hidden');
+            });
+            
+            document.getElementById('relatoriosBtn').addEventListener('click', function() {
+                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                document.getElementById('relatoriosView').classList.remove('hidden');
+            });
+            
+            // Sidebar mobile
+            document.getElementById('openSidebar').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.add('active');
+            });
+            
+            document.getElementById('closeSidebar').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.remove('active');
+            });
+            
+            // Formulários
+            document.getElementById('vpForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const nome = document.getElementById('vpNome').value;
+                const posicao = document.getElementById('vpPosicao').value;
+                
+                if (addVP(nome, posicao)) {
+                    document.getElementById('vpForm').reset();
+                    // Mostrar alerta de sucesso
+                    alert('VP adicionado com sucesso!');
+                } else {
+                    alert('Erro ao adicionar VP. Por favor, tente novamente.');
+                }
+            });
+            
+            document.getElementById('metaForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const descricao = document.getElementById('metaNome').value;
+                const peso = parseInt(document.getElementById('metaPeso').value);
+                
+                if (addMeta(descricao, peso)) {
+                    document.getElementById('metaForm').reset();
+                    // Mostrar alerta de sucesso
+                    alert('Meta adicionada com sucesso!');
+                } else {
+                    alert('Erro ao adicionar meta. Por favor, tente novamente.');
+                }
+            });
+            
+            document.getElementById('pontuacaoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const vpId = document.getElementById('vpIdPontuacao').value;
+                const metaId = document.getElementById('metaSelect').value;
+                const pontuacao = parseInt(document.getElementById('pontuacaoValor').value);
+                const pesoMaximo = parseInt(document.getElementById('pontuacaoMaxima').textContent);
+                
+                if (pontuacao > pesoMaximo) {
+                    alert(`A pontuação não pode ser maior que ${pesoMaximo}.`);
+                    return;
+                }
+                
+                if (addPontuacao(vpId, metaId, pontuacao)) {
+                    document.getElementById('pontuacaoModal').classList.add('hidden');
+                    document.getElementById('pontuacaoForm').reset();
+                } else {
+                    alert('Erro ao adicionar pontuação. Por favor, tente novamente.');
+                }
+            });
+            
+            // Seleção de pontuação máxima
+            document.getElementById('metaSelect').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                document.getElementById('pontuacaoMaxima').textContent = selectedOption.dataset.max || '0';
+            });
+            
+            // Fechar modais
+            document.getElementById('closePontuacaoModal').addEventListener('click', function() {
+                document.getElementById('pontuacaoModal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancelPontuacao').addEventListener('click', function() {
+                document.getElementById('pontuacaoModal').classList.add('hidden');
+            });
+            
+            document.getElementById('closeConfirmModal').addEventListener('click', function() {
+                document.getElementById('confirmModal').classList.add('hidden');
+            });
+            
+            document.getElementById('confirmCancel').addEventListener('click', function() {
+                document.getElementById('confirmModal').classList.add('hidden');
+            });
+            
+            // Selecionar VP para relatório
+            document.getElementById('vpSelectRelatorio').addEventListener('change', updateRelatorio);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(e) {
+                if (e.target === document.getElementById('pontuacaoModal')) {
+                    document.getElementById('pontuacaoModal').classList.add('hidden');
+                }
+                if (e.target === document.getElementById('confirmModal')) {
+                    document.getElementById('confirmModal').classList.add('hidden');
+                }
+            });
+        });
+        
+        // Funções globais para acesso dos botões
+        window.openPontuacaoModal = openPontuacaoModal;
+        window.confirmDelete = confirmDelete;
+    </script>
+</body>
+</html>
