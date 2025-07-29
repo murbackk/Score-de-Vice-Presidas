@@ -102,7 +102,7 @@
                         <button id="relatoriosBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                                </svg>
                             Relatórios
                         </button>
                     </li>
@@ -1516,15 +1516,15 @@
             document.getElementById('confirmModalTitle').textContent = `Confirmar Remoção`;
             let message = '';
             if (tipo === 'vp') {
-                message = `Tem certeza que deseja remover o VP "${nome}"?`;
+                message = `Tem certeza que deseja remover o VP "${nome}"? Todas as pontuações associadas também serão removidas.`;
             } else if (tipo === 'meta') {
-                message = `Tem certeza que deseja remover a meta "${nome}"?`;
+                message = `Tem certeza que deseja remover a meta "${nome}"? Todas as pontuações associadas a esta meta também serão removidas.`;
             } else if (tipo === 'ip') {
-                message = `Tem certeza que deseja remover a Imagem Pública "${nome}"?`;
+                message = `Tem certeza que deseja remover a Imagem Pública "${nome}"? Todas as pontuações associadas também serão removidas.`;
             } else if (tipo === 'presidencia_meta') {
-                message = `Tem certeza que deseja remover a meta da presidência "${nome}"?`;
+                message = `Tem certeza que deseja remover a meta da presidência "${nome}"? Esta ação não pode ser desfeita.`;
             } else if (tipo === 'projeto') {
-                message = `Tem certeza que deseja remover o projeto "${nome}"?`;
+                message = `Tem certeza que deseja remover o projeto "${nome}"? Esta ação não pode ser desfeita.`;
             }
             document.getElementById('confirmModalMessage').textContent = message;
             
