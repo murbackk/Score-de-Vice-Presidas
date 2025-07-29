@@ -30,10 +30,22 @@
                 left: 0;
             }
         }
+        /* Estilo para o rodapé fixo na parte inferior */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #1e3a8a; /* Cor de fundo similar à sidebar */
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            z-index: 40; /* Um z-index menor que a sidebar para não cobri-la */
+        }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="flex min-h-screen">
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <div class="flex flex-1"> <!-- flex-1 para que o conteúdo principal e sidebar ocupem o espaço restante -->
         <!-- Sidebar -->
         <div class="sidebar w-64 bg-blue-800 text-white p-4">
             <div class="flex items-center justify-between mb-8">
@@ -71,6 +83,22 @@
                         </button>
                     </li>
                     <li>
+                        <button id="ipsBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            IPs
+                        </button>
+                    </li>
+                    <li>
+                        <button id="presidenciaBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15.75c-2.648 0-5.195-.429-7.645-1.295M12 10.5a3 3 0 11-6 0 3 3 0 016 0zm0 0v-4.5m0 4.5v4.5m0-4.5h4.5m-4.5 0H7.5m0 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Presidência
+                        </button>
+                    </li>
+                    <li>
                         <button id="relatoriosBtn" class="w-full text-left px-4 py-2 rounded hover:bg-blue-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -80,13 +108,11 @@
                     </li>
                 </ul>
             </nav>
-            <div class="absolute bottom-0 left-0 right-0 p-4 bg-blue-900">
-                <p class="text-xs">Banco de dados interno SQLite</p>
-            </div>
+            <!-- O rodapé foi movido para fora desta div -->
         </div>
 
         <!-- Conteúdo principal -->
-        <div class="flex-1 p-8">
+        <div class="flex-1 p-8 pb-16"> <!-- Adicionado padding-bottom para o rodapé fixo -->
             <!-- Botão mobile -->
             <button id="openSidebar" class="md:hidden mb-4 bg-blue-600 text-white p-2 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -155,6 +181,67 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Card Total de IPs -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Imagens Públicas</p>
+                                <h3 id="totalIPs" class="text-3xl font-bold">0</h3>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Média de Pontuação de IPs -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Média IP</p>
+                                <h3 id="mediaPontuacaoIP" class="text-3xl font-bold">0</h3>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Melhor IP -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Melhor IP</p>
+                                <h3 id="melhorIP" class="text-2xl font-bold">N/A</h3>
+                                <p id="pontuacaoMelhorIP" class="text-sm text-gray-500">0 pontos</p>
+                            </div>
+                            <div class="bg-yellow-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Metas da Presidência Concluídas -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-500">Metas Presidência</p>
+                                <h3 id="percentMetasPresidencia" class="text-3xl font-bold">0%</h3>
+                            </div>
+                            <div class="bg-indigo-100 p-3 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-lg shadow p-6">
@@ -172,6 +259,25 @@
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posição</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metas Alcançadas</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Dados serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Top 5 IPs</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="topIPsTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clube</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metas Alcançadas</th>
                                 </tr>
@@ -269,6 +375,130 @@
                 </div>
             </div>
 
+            <!-- Gerenciamento de IPs -->
+            <div id="ipsView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Gerenciar Imagens Públicas</h2>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Adicionar Nova Imagem Pública</h3>
+                    <form id="ipForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="ipNome" class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                            <input type="text" id="ipNome" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="ipClube" class="block text-sm font-medium text-gray-700">Clube</label>
+                            <input type="text" id="ipClube" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Adicionar IP
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Lista de Imagens Públicas</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="ipsTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clube</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Dados serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerenciamento de Metas da Presidência e Projetos -->
+            <div id="presidenciaView" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Gerenciar Presidência</h2>
+
+                <!-- Metas da Presidência -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Metas da Presidência</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="presidenciaMetasTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meta</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Área</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Concluída</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Metas serão preenchidas via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Registro de Projetos -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-xl font-semibold mb-4">Registro de Projetos</h3>
+                    <form id="projetoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="projetoNome" class="block text-sm font-medium text-gray-700">Nome do Projeto</label>
+                            <input type="text" id="projetoNome" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="projetoDataInicio" class="block text-sm font-medium text-gray-700">Data de Início</label>
+                            <input type="date" id="projetoDataInicio" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="projetoDataRealizacao" class="block text-sm font-medium text-gray-700">Data de Realização</label>
+                            <input type="date" id="projetoDataRealizacao" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                        </div>
+                        <div>
+                            <label for="projetoObjetivo" class="block text-sm font-medium text-gray-700">Objetivo</label>
+                            <input type="text" id="projetoObjetivo" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
+                        </div>
+                        <div>
+                            <label for="projetoBeneficiarios" class="block text-sm font-medium text-gray-700">Beneficiários</label>
+                            <input type="text" id="projetoBeneficiarios" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                        </div>
+                        <div>
+                            <label for="projetoAreaEnfoque" class="block text-sm font-medium text-gray-700">Área de Enfoque</label>
+                            <input type="text" id="projetoAreaEnfoque" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="projetoDificuldades" class="block text-sm font-medium text-gray-700">Dificuldades Enfrentadas</label>
+                            <textarea id="projetoDificuldades" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Registrar Projeto
+                            </button>
+                        </div>
+                    </form>
+
+                    <h3 class="text-xl font-semibold mb-4 mt-8">Projetos Registrados</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200" id="projetosTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Início</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objetivo</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Projetos serão preenchidos via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Relatórios -->
             <div id="relatoriosView" class="hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Relatórios de Desempenho</h2>
@@ -329,7 +559,12 @@
         </div>
     </div>
 
-    <!-- Modal para adicionar pontuação -->
+    <!-- Rodapé global -->
+    <footer class="footer">
+        <p class="text-xs">Banco de dados interno SQLite</p>
+    </footer>
+
+    <!-- Modal para adicionar pontuação (mantido) -->
     <div id="pontuacaoModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div class="p-6">
@@ -343,7 +578,8 @@
                 </div>
                 
                 <form id="pontuacaoForm">
-                    <input type="hidden" id="vpIdPontuacao">
+                    <input type="hidden" id="targetIdPontuacao">
+                    <input type="hidden" id="targetTypePontuacao">
                     <div class="mb-4">
                         <label for="metaSelect" class="block text-sm font-medium text-gray-700">Meta</label>
                         <select id="metaSelect" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border" required>
@@ -455,15 +691,55 @@
                         );
                     `);
 
+                    // Tabela de pontuações agora referencia vp_id OU ip_id
                     db.run(`
                         CREATE TABLE IF NOT EXISTS pontuacoes (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            vp_id INTEGER NOT NULL,
+                            vp_id INTEGER,
+                            ip_id INTEGER,
                             meta_id INTEGER NOT NULL,
                             pontuacao INTEGER NOT NULL,
                             data_registro TEXT DEFAULT (datetime('now','localtime')),
                             FOREIGN KEY(vp_id) REFERENCES vps(id),
-                            FOREIGN KEY(meta_id) REFERENCES metas(id)
+                            FOREIGN KEY(ip_id) REFERENCES ips(id),
+                            FOREIGN KEY(meta_id) REFERENCES metas(id),
+                            CHECK ( (vp_id IS NOT NULL AND ip_id IS NULL) OR (vp_id IS NULL AND ip_id IS NOT NULL) )
+                        );
+                    `);
+
+                    // Nova tabela para Imagens Públicas (IPs) - Copia da estrutura de VPs
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS ips (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nome TEXT NOT NULL,
+                            clube TEXT NOT NULL,
+                            data_criacao TEXT DEFAULT (datetime('now','localtime'))
+                        );
+                    `);
+
+                    // Nova tabela para Metas da Presidência
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS presidencia_metas (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            descricao TEXT NOT NULL,
+                            area TEXT NOT NULL,
+                            concluida INTEGER DEFAULT 0, -- 0 para não concluída, 1 para concluída
+                            data_criacao TEXT DEFAULT (datetime('now','localtime'))
+                        );
+                    `);
+
+                    // Nova tabela para Projetos
+                    db.run(`
+                        CREATE TABLE IF NOT EXISTS projetos (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            nome TEXT NOT NULL,
+                            data_inicio TEXT NOT NULL,
+                            data_realizacao TEXT,
+                            objetivo TEXT NOT NULL,
+                            beneficiarios TEXT,
+                            area_enfoque TEXT,
+                            dificuldades_enfrentadas TEXT,
+                            data_registro TEXT DEFAULT (datetime('now','localtime'))
                         );
                     `);
 
@@ -481,6 +757,90 @@
                         db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", ["Reduzir custos em 15%", 80]);
                         db.run("INSERT INTO metas (descricao, peso) VALUES (?, ?)", ["Lançar 2 novos produtos", 120]);
                     }
+
+                    // Adicionar metas da presidência iniciais
+                    const presidenciaMetasCount = db.exec("SELECT COUNT(*) as count FROM presidencia_metas");
+                    if (presidenciaMetasCount[0]?.values[0][0] === 0) {
+                        const metasIniciais = [
+                            { descricao: "Aumentar o quadro associativo em 30% líquido.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Aumentar em 30% o número de menores de 16 anos no clube.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Fundar 5 novos clubes no distrito.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Crescimento de pelo menos 30% no número de associados do clube.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Adesão de 95% dos associados no censo final.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Ter 100% dos associados cadastrados no UnyClub.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Cada associado deve levar ao menos um amigo a uma reunião durante a gestão.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Realizar 2 dias do convidado (um por semestre).", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Ter o aumento de no mínimo 3 associados durante a gestão.", area: "📈 Crescimento do Clube e Quadro Associativo" },
+                            { descricao: "Engajamento de 80% dos membros nas reuniões e eventos.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Misturar as 'panelinhas' nas reuniões/projetos.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Realizar 3 reuniões temáticas no ano.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Realizar 1 projeto de integração interna por bimestre.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Brincadeiras em pelo menos uma reunião mensal.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Dinâmicas sobre Rotary ao longo do ano (ex.: torta na cara).", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Acolhimento de convidados e entrosamento.", area: "🧑‍🤝‍🧑 Engajamento e Integração Interna" },
+                            { descricao: "Alcançar 70% dos clubes com a comenda Clube de Excelência.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Enviar 100% dos relatórios mensais e atas.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Atualizar o regimento interno conforme o regimento distrital.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Criar Drive e arquivo físico para documentos.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Manter per capitas distritais em dia.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Adquirir produto da lojinha distrital por clube.", area: "🏅 Excelência e Gestão" },
+                            { descricao: "Aumentar seguidores nas redes sociais em pelo menos 30.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Realizar mínimo 3 publicações mensais.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "2 divulgações em mídias tradicionais.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Postar 80% das fotos das reuniões.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Postar 10 vídeos no TikTok.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Criar um site/blog do clube.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Melhorar a identidade visual.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Realizar ao menos 2 projetos do 'Modo Criativo'.", area: "💻 Imagem Pública e Comunicação" },
+                            { descricao: "Realizar eventos beneficentes e rifas.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Fechar 3 parcerias com empresas.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Criar programa de apadrinhamento financeiro.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Doar R$2,00 por associado à Fundação Rotária.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Aumentar o caixa em 15% líquido.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Finalizar a gestão com caixa distrital acima de R$ 8.000,00.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Efetuar duas doações para entidades da comunidade.", area: "💰 Financeiro e Captação" },
+                            { descricao: "Realizar ao menos 1 projeto com Rotary Padrinho.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Participar de 2 festivas do Rotary Padrinho.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Participar de 1 reunião com o Rotary a cada 3 meses.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Fazer escalações de rotarianos nas reuniões do Interact.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Realizar 1 projeto com cada clube da família rotária local.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Firmar parceria com ao menos 10 empresas colaboradoras no distrito.", area: "🫱🏻‍🫲🏽 Parcerias e Família Rotária" },
+                            { descricao: "Realizar capacitações e treinamentos internos.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Realizar 2 projetos de desenvolvimento de oratória.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Realizar 1 concurso interno de oratória.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Enviar 1 representante para o Concurso Distrital de Oratória.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Enviar vídeo trimestralmente com protocolo.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Ter protocolo com instrução rotária em reuniões.", area: "🧠 Capacitação, Protocolo e Desenvolvimento Pessoal" },
+                            { descricao: "Realizar pelo menos 10 projetos sociais.", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Continuar e ampliar projeto no Lar dos Idosos.", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Fazer projetos de reforço escolar e leitura.", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar projetos sustentáveis (hortas, reciclagem).", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 3 projetos de arrecadação/doações;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 2 projetos com campanha mensal;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 2 projetos em datas comemorativas;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 1 projeto de leitura;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 1 projeto com outro clube do distrito;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 2 projetos com DQA;", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "Realizar ao menos: 2 propostas do 4x4/Modo Criativo.", area: "❤️ Projetos Sociais e Sustentáveis" },
+                            { descricao: "2 projetos de meio ambiente;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "1 de prevenção de doenças;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "1 de água, saneamento e higiene;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "1 materno-infantil;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "2 ou 3 de educação básica e alfabetização;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "(opcional) 1 de desenvolvimento econômico comunitário;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "(opcional) 1 de consolidação da paz;", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "2 projetos por avenida de serviço ao longo da gestão.", area: "🌍 Áreas de Enfoque Rotário" },
+                            { descricao: "Cumprir com todos os eventos distritais: CEDIC, CODIC, SEODIC, EDAICs", area: "📅 Eventos e Participações" },
+                            { descricao: "Realizar o Concurso Distrital de Oratória com 90% de clubes presentes.", area: "📅 Eventos e Participações" },
+                            { descricao: "Participar do PRODIB com pelo menos 80% de conclusão.", area: "📅 Eventos e Participações" },
+                            { descricao: "Divulgar o clube ao menos 1 vez em escola.", area: "📅 Eventos e Participações" },
+                            { descricao: "Realizar 1 projeto com a área.", area: "📅 Eventos e Participações" }
+                        ];
+                        metasIniciais.forEach(meta => {
+                            db.run("INSERT INTO presidencia_metas (descricao, area) VALUES (?, ?)", [meta.descricao, meta.area]);
+                        });
+                    }
+
                     // Salvar banco inicial
                     saveDB();
                 }
@@ -489,8 +849,10 @@
                 loadDashboardData();
                 loadVPsData();
                 loadMetasData();
-                loadVPsForSelect();
-
+                loadIPsData(); // Carregar dados de IPs
+                loadPresidenciaMetasData(); // Carregar metas da presidência
+                loadProjetosData(); // Carregar projetos
+                loadVPsForSelect(); // Manter para relatórios de VPs
                 console.log("Banco de dados inicializado com sucesso!");
             } catch (error) {
                 console.error("Erro ao inicializar o banco de dados:", error);
@@ -533,6 +895,9 @@
             if (melhorVP[0]?.values[0]) {
                 document.getElementById('melhorVP').textContent = melhorVP[0].values[0][0];
                 document.getElementById('pontuacaoMelhorVP').textContent = `${melhorVP[0].values[0][1] || 0} pontos`;
+            } else {
+                document.getElementById('melhorVP').textContent = "N/A";
+                document.getElementById('pontuacaoMelhorVP').textContent = "0 pontos";
             }
             
             // Top 5 VPs
@@ -562,6 +927,81 @@
                     topVPsTable.appendChild(tr);
                 });
             }
+
+            // Total de IPs
+            const totalIPs = db.exec("SELECT COUNT(*) FROM ips");
+            document.getElementById('totalIPs').textContent = totalIPs[0]?.values[0][0] || 0;
+
+            // Média de pontuação dos IPs
+            const mediaPontuacaoIP = db.exec(`
+                SELECT AVG(total) as media 
+                FROM (
+                    SELECT i.id, SUM(p.pontuacao) as total 
+                    FROM ips i 
+                    LEFT JOIN pontuacoes p ON i.id = p.ip_id 
+                    GROUP BY i.id
+                )
+            `);
+            const mediaIP = mediaPontuacaoIP[0]?.values[0]?.[0] || 0;
+            document.getElementById('mediaPontuacaoIP').textContent = mediaIP.toFixed(1);
+
+            // Melhor IP
+            const melhorIP = db.exec(`
+                SELECT i.nome, SUM(p.pontuacao) as total 
+                FROM ips i 
+                LEFT JOIN pontuacoes p ON i.id = p.ip_id 
+                GROUP BY i.id 
+                ORDER BY total DESC 
+                LIMIT 1
+            `);
+            
+            if (melhorIP[0]?.values[0]) {
+                document.getElementById('melhorIP').textContent = melhorIP[0].values[0][0];
+                document.getElementById('pontuacaoMelhorIP').textContent = `${melhorIP[0].values[0][1] || 0} pontos`;
+            } else {
+                document.getElementById('melhorIP').textContent = "N/A";
+                document.getElementById('pontuacaoMelhorIP').textContent = "0 pontos";
+            }
+
+            // Top 5 IPs
+            const topIPs = db.exec(`
+                SELECT i.nome, i.clube, SUM(p.pontuacao) as total, 
+                       (SELECT COUNT(*) FROM pontuacoes WHERE ip_id = i.id) as metas_atingidas
+                FROM ips i 
+                LEFT JOIN pontuacoes p ON i.id = p.ip_id 
+                GROUP BY i.id 
+                ORDER BY total DESC 
+                LIMIT 5
+            `);
+            
+            const topIPsTable = document.querySelector('#topIPsTable tbody');
+            topIPsTable.innerHTML = '';
+            
+            if (topIPs[0]?.values) {
+                topIPs[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[0]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[3] || 0}</td>
+                    `;
+                    topIPsTable.appendChild(tr);
+                });
+            }
+
+            // Porcentagem de Metas da Presidência Concluídas
+            const totalPresidenciaMetas = db.exec("SELECT COUNT(*) FROM presidencia_metas");
+            const metasConcluidas = db.exec("SELECT COUNT(*) FROM presidencia_metas WHERE concluida = 1");
+            
+            const total = totalPresidenciaMetas[0]?.values[0][0] || 0;
+            const concluidas = metasConcluidas[0]?.values[0][0] || 0;
+            
+            let percentual = 0;
+            if (total > 0) {
+                percentual = (concluidas / total) * 100;
+            }
+            document.getElementById('percentMetasPresidencia').textContent = `${percentual.toFixed(0)}%`;
             
             // Gráfico de distribuição de pontuações
             renderScoreChart();
@@ -570,8 +1010,7 @@
         function loadVPsData() {
             const vps = db.exec(`
                 SELECT v.*, 
-                       (SELECT SUM(pontuacao) FROM pontuacoes WHERE vp_id = v.id) as total_pontos,
-                       (SELECT COUNT(*) FROM pontuacoes WHERE vp_id = v.id) as num_metas
+                       (SELECT SUM(pontuacao) FROM pontuacoes WHERE vp_id = v.id) as total_pontos
                 FROM vps v
                 ORDER BY v.nome
             `);
@@ -587,7 +1026,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${row[4] || 0}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="openPontuacaoModal(${row[0]})">
+                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="openPontuacaoModal('vp', ${row[0]})">
                                 Pontuar
                             </button>
                             <button class="text-red-600 hover:text-red-800" onclick="confirmDelete('vp', ${row[0]}, '${row[1]}')">
@@ -622,6 +1061,90 @@
                 });
             }
         }
+
+        // Função para carregar dados de IPs (copia de loadVPsData)
+        function loadIPsData() {
+            const ips = db.exec(`
+                SELECT i.*, 
+                       (SELECT SUM(pontuacao) FROM pontuacoes WHERE ip_id = i.id) as total_pontos
+                FROM ips i
+                ORDER BY i.nome
+            `);
+            
+            const ipsTable = document.querySelector('#ipsTable tbody');
+            ipsTable.innerHTML = '';
+            
+            if (ips[0]?.values) {
+                ips[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[4] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="text-blue-600 hover:text-blue-800 mr-3" onclick="openPontuacaoModal('ip', ${row[0]})">
+                                Pontuar
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="confirmDelete('ip', ${row[0]}, '${row[1]}')">
+                                Remover
+                            </button>
+                        </td>
+                    `;
+                    ipsTable.appendChild(tr);
+                });
+            }
+        }
+
+        // Função para carregar metas da presidência
+        function loadPresidenciaMetasData() {
+            const metas = db.exec("SELECT * FROM presidencia_metas ORDER BY area, descricao");
+            
+            const metasTable = document.querySelector('#presidenciaMetasTable tbody');
+            metasTable.innerHTML = '';
+            
+            if (metas[0]?.values) {
+                metas[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    const isChecked = row[3] === 1 ? 'checked' : '';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" data-id="${row[0]}" ${isChecked} onchange="togglePresidenciaMeta(${row[0]}, this.checked)">
+                        </td>
+                    `;
+                    metasTable.appendChild(tr);
+                });
+            }
+        }
+
+        // Função para carregar projetos
+        function loadProjetosData() {
+            const projetos = db.exec("SELECT * FROM projetos ORDER BY data_inicio DESC");
+            
+            const projetosTable = document.querySelector('#projetosTable tbody');
+            projetosTable.innerHTML = '';
+            
+            if (projetos[0]?.values) {
+                projetos[0].values.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[4]}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="text-yellow-600 hover:text-yellow-800 mr-3" onclick="editProjeto(${row[0]}, '${row[1]}', '${row[2]}', '${row[3] || ''}', '${row[4]}', '${row[5] || ''}', '${row[6] || ''}', '${row[7] || ''}')">
+                                Editar
+                            </button>
+                            <button class="text-red-600 hover:text-red-800" onclick="confirmDelete('projeto', ${row[0]}, '${row[1]}')">
+                                Remover
+                            </button>
+                        </td>
+                    `;
+                    projetosTable.appendChild(tr);
+                });
+            }
+        }
         
         function loadVPsForSelect() {
             const vps = db.exec("SELECT id, nome FROM vps ORDER BY nome");
@@ -638,8 +1161,27 @@
             }
         }
         
-        function loadMetasForPontuacao(vpId) {
-            // Buscar todas as metas
+        // openPontuacaoModal agora aceita o tipo (vp ou ip) e o ID
+        function openPontuacaoModal(type, id) {
+            loadMetasForPontuacao(); // Metas são as mesmas para ambos
+            
+            let name = '';
+            if (type === 'vp') {
+                const vpInfo = db.exec("SELECT nome FROM vps WHERE id = ?", [id]);
+                name = vpInfo[0]?.values?.[0]?.[0] || '';
+            } else if (type === 'ip') {
+                const ipInfo = db.exec("SELECT nome FROM ips WHERE id = ?", [id]);
+                name = ipInfo[0]?.values?.[0]?.[0] || '';
+            }
+
+            document.getElementById('modalTitle').textContent = `Pontuar ${name}`;
+            document.getElementById('targetIdPontuacao').value = id;
+            document.getElementById('targetTypePontuacao').value = type; // Salva o tipo
+            document.getElementById('pontuacaoModal').classList.remove('hidden');
+        }
+
+        // loadMetasForPontuacao não precisa mais do vpId, pois é genérico
+        function loadMetasForPontuacao() {
             const metas = db.exec("SELECT id, descricao, peso FROM metas ORDER BY descricao");
             const select = document.getElementById('metaSelect');
             select.innerHTML = '<option value="">Selecione uma meta</option>';
@@ -653,9 +1195,6 @@
                     select.appendChild(option);
                 });
             }
-            
-            // Definir o ID do VP no formulário
-            document.getElementById('vpIdPontuacao').value = vpId;
         }
         
         // Funções para manipulação de dados
@@ -687,28 +1226,105 @@
                 return false;
             }
         }
-        
 
-        function addPontuacao(vpId, metaId, pontuacao) {
+        // Função para adicionar IP (copia de addVP)
+        function addIP(nome, clube) {
             try {
-                // Verificar se já existe pontuação para este VP e Meta
-                const existe = db.exec("SELECT id FROM pontuacoes WHERE vp_id = ? AND meta_id = ?", [vpId, metaId]);
+                db.run("INSERT INTO ips (nome, clube) VALUES (?, ?)", [nome, clube]);
+                saveDB();
+                loadIPsData(); // Recarrega os dados da tabela de IPs
+                loadDashboardData(); // Atualiza o dashboard com o novo IP
+                return true;
+            } catch (error) {
+                console.error("Erro ao adicionar IP:", error);
+                return false;
+            }
+        }
+        
+        // addPontuacao agora lida com vp_id ou ip_id
+        function addPontuacao(targetType, targetId, metaId, pontuacao) {
+            try {
+                let queryCheck, queryUpdate, queryInsert;
+                let paramsCheck, paramsUpdate, paramsInsert;
+
+                if (targetType === 'vp') {
+                    queryCheck = "SELECT id FROM pontuacoes WHERE vp_id = ? AND meta_id = ?";
+                    queryUpdate = "UPDATE pontuacoes SET pontuacao = ? WHERE id = ?";
+                    queryInsert = "INSERT INTO pontuacoes (vp_id, meta_id, pontuacao) VALUES (?, ?, ?)";
+                    paramsCheck = [targetId, metaId];
+                } else if (targetType === 'ip') {
+                    queryCheck = "SELECT id FROM pontuacoes WHERE ip_id = ? AND meta_id = ?";
+                    queryUpdate = "UPDATE pontuacoes SET pontuacao = ? WHERE id = ?";
+                    queryInsert = "INSERT INTO pontuacoes (ip_id, meta_id, pontuacao) VALUES (?, ?, ?)";
+                    paramsCheck = [targetId, metaId];
+                } else {
+                    console.error("Tipo de alvo inválido para pontuação:", targetType);
+                    return false;
+                }
+
+                const existe = db.exec(queryCheck, paramsCheck);
 
                 if (existe[0]?.values?.length > 0) {
                     // Atualizar pontuação existente
-                    db.run("UPDATE pontuacoes SET pontuacao = ? WHERE id = ?", [pontuacao, existe[0].values[0][0]]);
+                    paramsUpdate = [pontuacao, existe[0].values[0][0]];
+                    db.run(queryUpdate, paramsUpdate);
                 } else {
                     // Inserir nova pontuação
-                    db.run("INSERT INTO pontuacoes (vp_id, meta_id, pontuacao) VALUES (?, ?, ?)", [vpId, metaId, pontuacao]);
+                    paramsInsert = (targetType === 'vp') ? [targetId, metaId, pontuacao] : [targetId, metaId, pontuacao];
+                    db.run(queryInsert, paramsInsert);
                 }
 
                 saveDB();
                 loadDashboardData();
                 loadVPsData();
-                updateRelatorio();
+                loadIPsData(); // Recarrega dados de IPs também
+                updateRelatorio(); // Se o relatório for para VPs, ele será atualizado. Se for para IPs, precisaria de uma função similar.
                 return true;
             } catch (error) {
                 console.error("Erro ao adicionar pontuação:", error);
+                return false;
+            }
+        }
+
+        // Funções para Metas da Presidência
+        // Removidas addPresidenciaMeta e updatePresidenciaMeta, pois as metas são fixas.
+
+        function togglePresidenciaMeta(id, concluida) {
+            try {
+                const status = concluida ? 1 : 0;
+                db.run("UPDATE presidencia_metas SET concluida = ? WHERE id = ?", [status, id]);
+                saveDB();
+                loadDashboardData(); // Atualiza o dashboard para refletir a mudança
+                return true;
+            } catch (error) {
+                console.error("Erro ao alternar status da meta da presidência:", error);
+                return false;
+            }
+        }
+
+        // Funções para Projetos
+        function addProjeto(nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades) {
+            try {
+                db.run("INSERT INTO projetos (nome, data_inicio, data_realizacao, objetivo, beneficiarios, area_enfoque, dificuldades_enfrentadas) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                    [nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades]);
+                saveDB();
+                loadProjetosData();
+                return true;
+            } catch (error) {
+                console.error("Erro ao adicionar projeto:", error);
+                return false;
+            }
+        }
+
+        function updateProjeto(id, nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades) {
+            try {
+                db.run("UPDATE projetos SET nome = ?, data_inicio = ?, data_realizacao = ?, objetivo = ?, beneficiarios = ?, area_enfoque = ?, dificuldades_enfrentadas = ? WHERE id = ?", 
+                    [nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades, id]);
+                saveDB();
+                loadProjetosData();
+                return true;
+            } catch (error) {
+                console.error("Erro ao atualizar projeto:", error);
                 return false;
             }
         }
@@ -726,12 +1342,26 @@
                     db.run("DELETE FROM pontuacoes WHERE meta_id = ?", [id]);
                     // Depois deletar a meta
                     db.run("DELETE FROM metas WHERE id = ?", [id]);
+                } else if (tipo === 'ip') { // Adicionado para IPs
+                    // Primeiro deletar pontuações relacionadas
+                    db.run("DELETE FROM pontuacoes WHERE ip_id = ?", [id]);
+                    // Depois deletar o IP
+                    db.run("DELETE FROM ips WHERE id = ?", [id]);
+                } else if (tipo === 'presidencia_meta') { // Adicionado para metas da presidência
+                    // Não permitimos exclusão de metas da presidência fixas
+                    console.warn("Exclusão de metas da presidência não permitida.");
+                    return false;
+                } else if (tipo === 'projeto') { // Adicionado para projetos
+                    db.run("DELETE FROM projetos WHERE id = ?", [id]);
                 }
 
                 saveDB();
                 loadDashboardData();
                 loadVPsData();
                 loadMetasData();
+                loadIPsData(); // Recarrega os dados de IPs após a exclusão
+                loadPresidenciaMetasData(); // Recarrega metas da presidência
+                loadProjetosData(); // Recarrega projetos
                 loadVPsForSelect();
                 updateRelatorio();
                 return true;
@@ -744,15 +1374,24 @@
         
         // Funções para renderização de gráficos
         function renderScoreChart() {
-            // Obter dados para o gráfico
-            const dados = db.exec(`
-                SELECT SUM(p.pontuacao) as total, COUNT(*) as count 
+            // Obter dados para o gráfico (considerando VPs e IPs)
+            const vpScores = db.exec(`
+                SELECT SUM(p.pontuacao) as total
                 FROM vps v 
                 LEFT JOIN pontuacoes p ON v.id = p.vp_id 
                 GROUP BY v.id
             `);
-            
-            const pontuacoes = dados[0]?.values.map(row => row[0] || 0) || [];
+            const ipScores = db.exec(`
+                SELECT SUM(p.pontuacao) as total
+                FROM ips i 
+                LEFT JOIN pontuacoes p ON i.id = p.ip_id 
+                GROUP BY i.id
+            `);
+
+            const pontuacoes = [
+                ...(vpScores[0]?.values.map(row => row[0] || 0) || []),
+                ...(ipScores[0]?.values.map(row => row[0] || 0) || [])
+            ];
             
             // Agrupar pontuações em intervalos para o histograma
             const intervalos = {};
@@ -775,7 +1414,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Número de VPs',
+                        label: 'Número de Entidades (VPs/IPs)',
                         data: data,
                         backgroundColor: 'rgba(59, 130, 246, 0.5)',
                         borderColor: 'rgba(59, 130, 246, 1)',
@@ -790,7 +1429,7 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Número de VPs'
+                                text: 'Número de Entidades'
                             }
                         },
                         x: {
@@ -869,25 +1508,48 @@
         }
         
         // Funções para manipulação da UI
-        function openPontuacaoModal(vpId) {
-            loadMetasForPontuacao(vpId);
-            const vpInfo = db.exec("SELECT nome FROM vps WHERE id = ?", [vpId]);
-            if (vpInfo[0]?.values?.[0]) {
-                document.getElementById('modalTitle').textContent = `Pontuar ${vpInfo[0].values[0][0]}`;
-            }
-            document.getElementById('pontuacaoModal').classList.remove('hidden');
-        }
+        // openPontuacaoModal agora é chamada com o tipo e o ID
+        // function openPontuacaoModal(type, id) { ... } (já definida acima)
         
         function confirmDelete(tipo, id, nome) {
             document.getElementById('confirmModal').classList.remove('hidden');
             document.getElementById('confirmModalTitle').textContent = `Confirmar Remoção`;
-            document.getElementById('confirmModalMessage').textContent = 
-                `Tem certeza que deseja remover ${tipo === 'vp' ? 'o VP' : 'a meta'} "${nome}"?`;
+            let message = '';
+            if (tipo === 'vp') {
+                message = `Tem certeza que deseja remover o VP "${nome}"?`;
+            } else if (tipo === 'meta') {
+                message = `Tem certeza que deseja remover a meta "${nome}"?`;
+            } else if (tipo === 'ip') {
+                message = `Tem certeza que deseja remover a Imagem Pública "${nome}"?`;
+            } else if (tipo === 'presidencia_meta') {
+                message = `Tem certeza que deseja remover a meta da presidência "${nome}"?`;
+            } else if (tipo === 'projeto') {
+                message = `Tem certeza que deseja remover o projeto "${nome}"?`;
+            }
+            document.getElementById('confirmModalMessage').textContent = message;
             
             document.getElementById('confirmAction').onclick = function() {
                 deleteRecord(tipo, id);
                 document.getElementById('confirmModal').classList.add('hidden');
             };
+        }
+
+        // openPresidenciaMetaModal e funções relacionadas à edição/adição de metas da presidência foram removidas.
+
+        function editProjeto(id, nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades) {
+            document.getElementById('projetoForm').reset(); // Limpa o formulário primeiro
+            document.getElementById('projetoForm').dataset.editId = id; // Armazena o ID para edição
+
+            document.getElementById('projetoNome').value = nome;
+            document.getElementById('projetoDataInicio').value = dataInicio;
+            document.getElementById('projetoDataRealizacao').value = dataRealizacao;
+            document.getElementById('projetoObjetivo').value = objetivo;
+            document.getElementById('projetoBeneficiarios').value = beneficiarios;
+            document.getElementById('projetoAreaEnfoque').value = areaEnfoque;
+            document.getElementById('projetoDificuldades').value = dificuldades;
+
+            // Altera o texto do botão para "Atualizar Projeto"
+            document.querySelector('#projetoForm button[type="submit"]').textContent = 'Atualizar Projeto';
         }
         
         function updateRelatorio() {
@@ -919,7 +1581,7 @@
             
             // Tabela de metas
             const metasVP = db.exec(`
-                SELECT m.id, m.descricao, m.peso, p.pontuacao 
+                SELECT m.descricao, m.peso, p.pontuacao 
                 FROM metas m 
                 LEFT JOIN pontuacoes p ON m.id = p.meta_id AND p.vp_id = ?
                 ORDER BY m.descricao
@@ -931,12 +1593,12 @@
             if (metasVP[0]?.values) {
                 metasVP[0].values.forEach(row => {
                     const tr = document.createElement('tr');
-                    const percentual = row[2] > 0 ? Math.round((row[3] || 0) / row[2] * 100) : 0;
+                    const percentual = row[1] > 0 ? Math.round((row[2] || 0) / row[1] * 100) : 0; // Corrigido para usar peso (row[1])
                     
                     tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${row[0]}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${row[1]}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${row[2]}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${row[3] || 0}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${row[2] || 0}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2">
@@ -956,32 +1618,25 @@
             initDB();
             
             // Navegação
-            document.getElementById('dashboardBtn').addEventListener('click', function() {
-                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
-                    view.classList.add('hidden');
+            document.querySelectorAll('#dashboardBtn, #vpsBtn, #metasBtn, #ipsBtn, #presidenciaBtn, #relatoriosBtn').forEach(button => {
+                button.addEventListener('click', function() {
+                    document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView, #ipsView, #presidenciaView').forEach(view => {
+                        view.classList.add('hidden');
+                    });
+                    const viewId = this.id.replace('Btn', 'View');
+                    document.getElementById(viewId).classList.remove('hidden');
+
+                    // Recarregar dados específicos da aba
+                    if (viewId === 'vpsView') loadVPsData();
+                    if (viewId === 'metasView') loadMetasData();
+                    if (viewId === 'ipsView') loadIPsData();
+                    if (viewId === 'presidenciaView') {
+                        loadPresidenciaMetasData();
+                        loadProjetosData();
+                    }
+                    if (viewId === 'dashboardView') loadDashboardData();
+                    if (viewId === 'relatoriosView') loadVPsForSelect(); // Apenas carrega o select, o relatório é gerado ao selecionar
                 });
-                document.getElementById('dashboardView').classList.remove('hidden');
-            });
-            
-            document.getElementById('vpsBtn').addEventListener('click', function() {
-                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
-                    view.classList.add('hidden');
-                });
-                document.getElementById('vpsView').classList.remove('hidden');
-            });
-            
-            document.getElementById('metasBtn').addEventListener('click', function() {
-                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
-                    view.classList.add('hidden');
-                });
-                document.getElementById('metasView').classList.remove('hidden');
-            });
-            
-            document.getElementById('relatoriosBtn').addEventListener('click', function() {
-                document.querySelectorAll('#dashboardView, #vpsView, #metasView, #relatoriosView').forEach(view => {
-                    view.classList.add('hidden');
-                });
-                document.getElementById('relatoriosView').classList.remove('hidden');
             });
             
             // Sidebar mobile
@@ -1001,7 +1656,6 @@
                 
                 if (addVP(nome, posicao)) {
                     document.getElementById('vpForm').reset();
-                    // Mostrar alerta de sucesso
                     alert('VP adicionado com sucesso!');
                 } else {
                     alert('Erro ao adicionar VP. Por favor, tente novamente.');
@@ -1015,16 +1669,30 @@
                 
                 if (addMeta(descricao, peso)) {
                     document.getElementById('metaForm').reset();
-                    // Mostrar alerta de sucesso
                     alert('Meta adicionada com sucesso!');
                 } else {
                     alert('Erro ao adicionar meta. Por favor, tente novamente.');
                 }
             });
+
+            // Formulário de adição de IP
+            document.getElementById('ipForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const nome = document.getElementById('ipNome').value;
+                const clube = document.getElementById('ipClube').value;
+                
+                if (addIP(nome, clube)) {
+                    document.getElementById('ipForm').reset();
+                    alert('Imagem Pública adicionada com sucesso!');
+                } else {
+                    alert('Erro ao adicionar Imagem Pública. Por favor, tente novamente.');
+                }
+            });
             
             document.getElementById('pontuacaoForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                const vpId = document.getElementById('vpIdPontuacao').value;
+                const targetId = document.getElementById('targetIdPontuacao').value;
+                const targetType = document.getElementById('targetTypePontuacao').value;
                 const metaId = document.getElementById('metaSelect').value;
                 const pontuacao = parseInt(document.getElementById('pontuacaoValor').value);
                 const pesoMaximo = parseInt(document.getElementById('pontuacaoMaxima').textContent);
@@ -1034,12 +1702,42 @@
                     return;
                 }
                 
-                if (addPontuacao(vpId, metaId, pontuacao)) {
+                if (addPontuacao(targetType, targetId, metaId, pontuacao)) {
                     document.getElementById('pontuacaoModal').classList.add('hidden');
                     document.getElementById('pontuacaoForm').reset();
                 } else {
                     alert('Erro ao adicionar pontuação. Por favor, tente novamente.');
                 }
+            });
+
+            // Formulário de Projetos
+            document.getElementById('projetoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const id = document.getElementById('projetoForm').dataset.editId;
+                const nome = document.getElementById('projetoNome').value;
+                const dataInicio = document.getElementById('projetoDataInicio').value;
+                const dataRealizacao = document.getElementById('projetoDataRealizacao').value;
+                const objetivo = document.getElementById('projetoObjetivo').value;
+                const beneficiarios = document.getElementById('projetoBeneficiarios').value;
+                const areaEnfoque = document.getElementById('projetoAreaEnfoque').value;
+                const dificuldades = document.getElementById('projetoDificuldades').value;
+
+                if (id) {
+                    if (updateProjeto(id, nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades)) {
+                        alert('Projeto atualizado com sucesso!');
+                    } else {
+                        alert('Erro ao atualizar projeto.');
+                    }
+                    delete document.getElementById('projetoForm').dataset.editId; // Remove o ID de edição
+                    document.querySelector('#projetoForm button[type="submit"]').textContent = 'Registrar Projeto'; // Volta o texto do botão
+                } else {
+                    if (addProjeto(nome, dataInicio, dataRealizacao, objetivo, beneficiarios, areaEnfoque, dificuldades)) {
+                        alert('Projeto registrado com sucesso!');
+                    } else {
+                        alert('Erro ao registrar projeto.');
+                    }
+                }
+                document.getElementById('projetoForm').reset();
             });
             
             // Seleção de pontuação máxima
@@ -1082,6 +1780,8 @@
         // Funções globais para acesso dos botões
         window.openPontuacaoModal = openPontuacaoModal;
         window.confirmDelete = confirmDelete;
+        window.togglePresidenciaMeta = togglePresidenciaMeta;
+        window.editProjeto = editProjeto;
     </script>
 </body>
 </html>
