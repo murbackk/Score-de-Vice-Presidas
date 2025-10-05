@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Gestão - Score Vices</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+  <style>
+    body { background-color: #f4f6f9; font-family: 'Helvetica', sans-serif; }
+    .sidebar { background: linear-gradient(180deg, #003366, #00509e); color: white; min-height: 100vh; width: 260px; transition: all 0.3s ease; }
+    .sidebar.hidden { transform: translateX(-100%); }
+    .footer { background: linear-gradient(90deg, #003366, #00509e); color: white; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; }
+  </style>
+</head>
+<!-- Modal de Pontuação -->
+<div id="pontuacaoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-xl p-6 w-96">
+    <h3 class="text-xl font-bold mb-4">Pontuar: <span id="pontuacaoNome" class="text-blue-600"></span></h3>
+    
+    <form id="pontuacaoForm">
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Meta</label>
+        <select id="pontuacaoMetaSelect" required class="w-full border rounded p-2">
+          <option value="">Selecione uma meta</option>
+        </select>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-2">Pontuação</label>
+        <input id="pontuacaoValor" type="number" required class="w-full border rounded p-2" placeholder="Ex: 10">
+      </div>
+      
+      <div class="flex gap-2">
+        <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Confirmar
+        </button>
+        <button type="button" onclick="closePontuarModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Sidebar -->
+  <div class="sidebar fixed top-0 left-0 h-full p-4">
+    <h2 class="text-2xl font-bold mb-6">Score Vices</h2>
+    <nav class="space-y-3">
+      <button id="dashboardBtn" class="block w-full text-left hover:bg-blue-700 p-2 rounded">Dashboard</button>
+      <button id="vpsBtn" class="block w-full text-left hover:bg-blue-700 p-2 rounded">Vice-Presidentes</button>
+      <button id="metasBtn" class="block w-full text-left hover:bg-blue-700 p-2 rounded">Metas</button>
+      <button id="ipsBtn" class="block w-full text-left hover:bg-blue-700 p-2 rounded">Imagens Públicas</button>
+      <button id="presidenciaBtn" class="block w-full text-left hover:bg-blue-700 p-2 rounded">Presidência</button>
+    </nav>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-1 ml-64 p-6 pb-16">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Painel de Gestão</h1>
+      <button id="openSidebar" class="lg:hidden bg-blue-600 text-white px-3 py-1 rounded">☰</button>
+    </header>
+
+    <!-- Dashboard -->
+    <section id="dashboardView">
+      <h2 class="text-xl font-semibold mb-4">Resumo Geral</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Total de Vice-Presidentes</h3>
+          <p id="totalVPs" class="text-2xl text-blue-600 font-bold">0</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Total de Imagens Públicas</h3>
+          <p id="totalIPs" class="text-2xl text-blue-600 font-bold">0</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Metas Cadastradas</h3>
+          <p id="totalMetas" class="text-2xl text-blue-600 font-bold">0</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Média Pontuação VPs</h3>
+          <p id="mediaPontuacao" class="text-2xl text-green-600 font-bold">0</p>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Melhor VP</h3>
+          <p id="melhorVP" class="text-xl text-gray-800">-</p>
+          <small id="pontuacaoMelhorVP" class="text-sm text-gray-500"></small>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4 text-center">
+          <h3 class="font-bold text-gray-700">Melhor IP</h3>
+          <p id="melhorIP" class="text-xl text-gray-800">-</p>
+          <small id="pontuacaoMelhorIP" class="text-sm text-gray-500"></small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vice-Presidentes -->
+    <section id="vpsView" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Vice-Presidentes</h2>
+      <form id="vpForm" class="mb-4 flex flex-wrap gap-2">
+        <input id="vpNome" placeholder="Nome" class="border rounded p-2 flex-1">
+        <input id="vpPosicao" placeholder="Posição" class="border rounded p-2 flex-1">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded">Adicionar</button>
+      </form>
+      <table id="vpsTable" class="min-w-full bg-white rounded shadow">
+        <thead><tr><th>Nome</th><th>Posição</th><th>Pontos</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Imagens Públicas -->
+    <section id="ipsView" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Imagens Públicas</h2>
+      <form id="ipForm" class="mb-4 flex flex-wrap gap-2">
+        <input id="ipNome" placeholder="Nome" class="border rounded p-2 flex-1">
+        <input id="ipClube" placeholder="Clube" class="border rounded p-2 flex-1">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded">Adicionar</button>
+      </form>
+      <table id="ipsTable" class="min-w-full bg-white rounded shadow">
+        <thead><tr><th>Nome</th><th>Clube</th><th>Pontos</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Metas -->
+    <section id="metasView" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Metas</h2>
+      <form id="metaForm" class="mb-4 flex flex-wrap gap-2">
+        <input id="metaNome" placeholder="Descrição" class="border rounded p-2 flex-1">
+        <input id="metaPeso" placeholder="Peso" class="border rounded p-2 flex-1">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded">Adicionar</button>
+      </form>
+      <table id="metasTable" class="min-w-full bg-white rounded shadow">
+        <thead><tr><th>Descrição</th><th>Peso</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Presidência -->
+    <section id="presidenciaView" class="hidden">
+      <h2 class="text-2xl font-bold mb-4">Projetos</h2>
+      <form id="projetoForm" class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <input id="projetoNome" placeholder="Nome" class="border rounded p-2">
+        <input id="projetoDataInicio" type="date" class="border rounded p-2">
+        <input id="projetoDataRealizacao" type="date" class="border rounded p-2">
+        <input id="projetoObjetivo" placeholder="Objetivo" class="border rounded p-2">
+        <input id="projetoBeneficiarios" placeholder="Beneficiários" class="border rounded p-2">
+        <input id="projetoAreaEnfoque" placeholder="Área de Enfoque" class="border rounded p-2">
+        <input id="projetoDificuldades" placeholder="Dificuldades" class="border rounded p-2">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded col-span-full">Adicionar</button>
+      </form>
+      <table id="projetosTable" class="min-w-full bg-white rounded shadow">
+        <thead><tr><th>Nome</th><th>Data Início</th><th>Objetivo</th><th>Ações</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <!-- Metas Distritais -->
+      <div class="mt-8">
+        <h3 class="text-xl font-semibold mb-4">Metas Distritais</h3>
+        <div id="metasDistritais" class="space-y-2"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <p class="text-xs">Conectado ao banco PostgreSQL</p>
+  </footer>
+
+  <script>
+  // Configuração da API
+const API_URL = 'http://localhost:3000';
+
+// Navegação entre seções
+const sections = ['dashboardView','vpsView','metasView','ipsView','presidenciaView'];
+const showSection = id => {
+  sections.forEach(sec => document.getElementById(sec)?.classList.add('hidden'));
+  document.getElementById(id)?.classList.remove('hidden');
+};
+
+document.getElementById('dashboardBtn').onclick = () => { showSection('dashboardView'); updateDashboard(); };
+document.getElementById('vpsBtn').onclick = () => { showSection('vpsView'); loadVPs(); };
+document.getElementById('metasBtn').onclick = () => { showSection('metasView'); loadMetas(); };
+document.getElementById('ipsBtn').onclick = () => { showSection('ipsView'); loadIPs(); };
+document.getElementById('presidenciaBtn').onclick = () => { showSection('presidenciaView'); loadProjetos(); loadMetasDistritais(); };
+document.getElementById('openSidebar').onclick = () => document.querySelector('.sidebar').classList.remove('hidden');
+
+// ==================== MODAL DE PONTUAÇÃO (DEFINIR PRIMEIRO) ====================
+let pontuacaoModalData = {};
+
+window.openPontuarModal = async function(tipo, id, nome) {
+  pontuacaoModalData = { tipo, id, nome };
+  
+  // Carregar metas disponíveis
+  const res = await fetch(`${API_URL}/metas`);
+  const metas = await res.json();
+  
+  const select = document.getElementById('pontuacaoMetaSelect');
+  select.innerHTML = '<option value="">Selecione uma meta</option>';
+  metas.forEach(meta => {
+    const option = document.createElement('option');
+    option.value = meta.id;
+    option.textContent = `${meta.descricao} (Peso: ${meta.peso})`;
+    option.dataset.peso = meta.peso;
+    select.appendChild(option);
+  });
+  
+  document.getElementById('pontuacaoNome').textContent = nome;
+  document.getElementById('pontuacaoModal').classList.remove('hidden');
+};
+
+window.closePontuarModal = function() {
+  document.getElementById('pontuacaoModal').classList.add('hidden');
+  document.getElementById('pontuacaoForm').reset();
+};
+
+window.deleteVP = async function(id) {
+  if (!confirm('Tem certeza que deseja remover este VP?')) return;
+  try {
+    await fetch(`${API_URL}/vps/${id}`, { method: 'DELETE' });
+    loadVPs();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao remover VP:', err);
+  }
+};
+
+window.deleteIP = async function(id) {
+  if (!confirm('Tem certeza que deseja remover esta Imagem Pública?')) return;
+  try {
+    await fetch(`${API_URL}/ips/${id}`, { method: 'DELETE' });
+    loadIPs();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao remover IP:', err);
+  }
+};
+
+window.deleteMeta = async function(id) {
+  if (!confirm('Tem certeza que deseja remover esta meta?')) return;
+  try {
+    await fetch(`${API_URL}/metas/${id}`, { method: 'DELETE' });
+    loadMetas();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao remover meta:', err);
+  }
+};
+
+window.deleteProjeto = async function(id) {
+  if (!confirm('Tem certeza que deseja remover este projeto?')) return;
+  try {
+    await fetch(`${API_URL}/projetos/${id}`, { method: 'DELETE' });
+    loadProjetos();
+  } catch (err) {
+    console.error('Erro ao remover projeto:', err);
+  }
+};
+
+// Carregamento inicial
+document.addEventListener('DOMContentLoaded', () => {
+  loadVPs();
+  loadIPs();
+  loadMetas();
+  loadProjetos();
+  updateDashboard();
+  loadMetasDistritais();
+  
+  // Auto-preencher pontuação com base no peso da meta
+  document.getElementById('pontuacaoMetaSelect').onchange = function() {
+    const selectedOption = this.options[this.selectedIndex];
+    if (selectedOption.dataset.peso) {
+      document.getElementById('pontuacaoValor').value = selectedOption.dataset.peso;
+    }
+  };
+  
+  // Form de pontuação
+  document.getElementById('pontuacaoForm').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    const metaId = document.getElementById('pontuacaoMetaSelect').value;
+    const pontuacao = document.getElementById('pontuacaoValor').value;
+    
+    if (!metaId || !pontuacao) {
+      alert('Selecione uma meta e informe a pontuação!');
+      return;
+    }
+    
+    const payload = {
+      meta_id: parseInt(metaId),
+      pontuacao: parseInt(pontuacao)
+    };
+    
+    if (pontuacaoModalData.tipo === 'vp') {
+      payload.vp_id = pontuacaoModalData.id;
+    } else {
+      payload.ip_id = pontuacaoModalData.id;
+    }
+    
+    try {
+      await fetch(`${API_URL}/pontuacoes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      closePontuarModal();
+      loadVPs();
+      loadIPs();
+      updateDashboard();
+      alert('Pontuação registrada com sucesso!');
+    } catch (err) {
+      console.error('Erro ao registrar pontuação:', err);
+      alert('Erro ao registrar pontuação!');
+    }
+  };
+});
+
+// ==================== DASHBOARD ====================
+async function updateDashboard() {
+  try {
+    const [vps, ips, metas] = await Promise.all([
+      fetch(`${API_URL}/vps`).then(r => r.json()),
+      fetch(`${API_URL}/ips`).then(r => r.json()),
+      fetch(`${API_URL}/metas`).then(r => r.json())
+    ]);
+
+    document.getElementById('totalVPs').textContent = vps.length;
+    document.getElementById('totalIPs').textContent = ips.length;
+    document.getElementById('totalMetas').textContent = metas.length;
+
+    // Média de pontuação dos VPs
+    const totalPontos = vps.reduce((sum, vp) => sum + parseFloat(vp.total_pontos || 0), 0);
+    const media = vps.length > 0 ? (totalPontos / vps.length).toFixed(1) : 0;
+    document.getElementById('mediaPontuacao').textContent = media;
+
+    // Melhor VP
+    const melhorVP = vps.reduce((max, vp) => parseFloat(vp.total_pontos || 0) > parseFloat(max.total_pontos || 0) ? vp : max, vps[0] || {});
+    document.getElementById('melhorVP').textContent = melhorVP.nome || '-';
+    document.getElementById('pontuacaoMelhorVP').textContent = melhorVP.total_pontos ? `${melhorVP.total_pontos} pontos` : '';
+
+    // Melhor IP
+    const melhorIP = ips.reduce((max, ip) => parseFloat(ip.total_pontos || 0) > parseFloat(max.total_pontos || 0) ? ip : max, ips[0] || {});
+    document.getElementById('melhorIP').textContent = melhorIP.nome || '-';
+    document.getElementById('pontuacaoMelhorIP').textContent = melhorIP.total_pontos ? `${melhorIP.total_pontos} pontos` : '';
+
+  } catch (err) {
+    console.error('Erro ao atualizar dashboard:', err);
+  }
+}
+
+// ==================== VICE-PRESIDENTES ====================
+async function loadVPs() {
+  try {
+    const res = await fetch(`${API_URL}/vps`);
+    const vps = await res.json();
+    const tbody = document.querySelector('#vpsTable tbody');
+    tbody.innerHTML = '';
+
+    vps.forEach(vp => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="p-2">${vp.nome}</td>
+        <td class="p-2">${vp.posicao}</td>
+        <td class="p-2 font-bold text-blue-600">${vp.total_pontos || 0}</td>
+        <td class="p-2 space-x-2">
+          <button onclick="openPontuarModal('vp', ${vp.id}, '${vp.nome}')" class="bg-green-500 text-white px-2 py-1 rounded text-sm">Pontuar</button>
+          <button onclick="deleteVP(${vp.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar VPs:', err);
+  }
+}
+
+document.getElementById('vpForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const nome = document.getElementById('vpNome').value;
+  const posicao = document.getElementById('vpPosicao').value;
+
+  try {
+    await fetch(`${API_URL}/vps`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, posicao })
+    });
+    document.getElementById('vpForm').reset();
+    loadVPs();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao adicionar VP:', err);
+  }
+};
+
+// ==================== IMAGENS PÚBLICAS ====================
+async function loadIPs() {
+  try {
+    const res = await fetch(`${API_URL}/ips`);
+    const ips = await res.json();
+    const tbody = document.querySelector('#ipsTable tbody');
+    tbody.innerHTML = '';
+
+    ips.forEach(ip => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="p-2">${ip.nome}</td>
+        <td class="p-2">${ip.clube}</td>
+        <td class="p-2 font-bold text-blue-600">${ip.total_pontos || 0}</td>
+        <td class="p-2 space-x-2">
+          <button onclick="openPontuarModal('ip', ${ip.id}, '${ip.nome}')" class="bg-green-500 text-white px-2 py-1 rounded text-sm">Pontuar</button>
+          <button onclick="deleteIP(${ip.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar IPs:', err);
+  }
+}
+
+document.getElementById('ipForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const nome = document.getElementById('ipNome').value;
+  const clube = document.getElementById('ipClube').value;
+
+  try {
+    await fetch(`${API_URL}/ips`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, clube })
+    });
+    document.getElementById('ipForm').reset();
+    loadIPs();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao adicionar IP:', err);
+  }
+};
+
+// ==================== METAS ====================
+async function loadMetas() {
+  try {
+    const res = await fetch(`${API_URL}/metas`);
+    const metas = await res.json();
+    const tbody = document.querySelector('#metasTable tbody');
+    tbody.innerHTML = '';
+
+    metas.forEach(meta => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="p-2">${meta.descricao}</td>
+        <td class="p-2">${meta.peso}</td>
+        <td class="p-2">
+          <button onclick="deleteMeta(${meta.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar metas:', err);
+  }
+}
+
+document.getElementById('metaForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const descricao = document.getElementById('metaNome').value;
+  const peso = document.getElementById('metaPeso').value;
+
+  try {
+    await fetch(`${API_URL}/metas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ descricao, peso: parseInt(peso) })
+    });
+    document.getElementById('metaForm').reset();
+    loadMetas();
+    updateDashboard();
+  } catch (err) {
+    console.error('Erro ao adicionar meta:', err);
+  }
+};
+
+// ==================== PROJETOS ====================
+async function loadProjetos() {
+  try {
+    const res = await fetch(`${API_URL}/projetos`);
+    const projetos = await res.json();
+    const tbody = document.querySelector('#projetosTable tbody');
+    tbody.innerHTML = '';
+
+    projetos.forEach(proj => {
+      const tr = document.createElement('tr');
+      tr.className = 'border-b hover:bg-gray-50';
+      tr.innerHTML = `
+        <td class="p-2">${proj.nome}</td>
+        <td class="p-2">${new Date(proj.data_inicio).toLocaleDateString('pt-BR')}</td>
+        <td class="p-2">${proj.objetivo}</td>
+        <td class="p-2">
+          <button onclick="deleteProjeto(${proj.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm">Remover</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar projetos:', err);
+  }
+}
+
+document.getElementById('projetoForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const projeto = {
+    nome: document.getElementById('projetoNome').value,
+    data_inicio: document.getElementById('projetoDataInicio').value,
+    data_realizacao: document.getElementById('projetoDataRealizacao').value,
+    objetivo: document.getElementById('projetoObjetivo').value,
+    beneficiarios: document.getElementById('projetoBeneficiarios').value,
+    area_enfoque: document.getElementById('projetoAreaEnfoque').value,
+    dificuldades_enfrentadas: document.getElementById('projetoDificuldades').value
+  };
+
+  try {
+    await fetch(`${API_URL}/projetos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(projeto)
+    });
+    document.getElementById('projetoForm').reset();
+    loadProjetos();
+  } catch (err) {
+    console.error('Erro ao adicionar projeto:', err);
+  }
+};
+
+// ==================== METAS DISTRITAIS ====================
+async function loadMetasDistritais() {
+  try {
+    const res = await fetch(`${API_URL}/metas_distritais`);
+    const metas = await res.json();
+    const container = document.getElementById('metasDistritais');
+    container.innerHTML = '';
+
+    metas.forEach(meta => {
+      const div = document.createElement('div');
+      div.className = "flex items-center gap-2 bg-white shadow rounded p-2";
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = meta.cumprida;
+      checkbox.className = 'form-checkbox h-5 w-5 text-blue-600';
+
+      const label = document.createElement('label');
+      label.textContent = meta.descricao;
+      label.className = 'text-gray-800';
+
+      checkbox.addEventListener('change', async () => {
+        await fetch(`${API_URL}/metas_distritais/${meta.id}`, {
+          method: 'PUT',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({cumprida: checkbox.checked})
+        });
+      });
+
+      div.appendChild(checkbox);
+      div.appendChild(label);
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar metas distritais:', err);
+  }
+}
+</script>
+</body>
+</html>
